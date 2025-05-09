@@ -9,6 +9,8 @@ useFonts({
 
   return (
   <Stack screenOptions={{headerShown:false}}>
+    {/* <Stack.Screen name="(tabs)/welcomeScreen" />
+    <Stack.Screen name="nearbyGas" options={{ presentation: "modal" }} /> */}
   </Stack>
   )
 

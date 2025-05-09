@@ -16,7 +16,7 @@ const LoginScreen = () => {
     const userData = { email, password };
     
     try {
-        const res = await axios.post("http://10.56.69.162:9001/login-user", userData);
+        const res = await axios.post("http://10.246.171.162:9001/login-user", userData);
         await AsyncStorage.setItem("username", res.data.username);
         await AsyncStorage.setItem("token", res.data.data);  // Save the token
         if (res.data.status === "ok") {

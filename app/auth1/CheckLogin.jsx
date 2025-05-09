@@ -12,21 +12,21 @@ const CheckLogin = () => {
       const token = await AsyncStorage.getItem("token");
 
       if (!token) {
-        router.replace("/auth1/login");
+        router.replace("/");
         return;
       }
 
       try {
-        const res = await axios.post("http://10.56.69.162:9001/verify-token", { token });
+        const res = await axios.post("http://10.246.171.162:9001/verify-token", { token });
         if (res.data.status === "ok") {
           router.replace("/(tabs)/welcomeScreen");
         } else {
           await AsyncStorage.clear();
-          router.replace("/auth1/login");
+          router.replace("/");
         }
       } catch (err) {
         await AsyncStorage.clear();
-        router.replace("/auth1/login");
+        router.replace("/");
       }
     };
 

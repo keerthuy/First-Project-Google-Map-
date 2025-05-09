@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity,Image, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import GoogleMapUn from "./../../Components/Home/GoogleMapUn" // Adjust the import path as necessary 
+import Colors from "../../constant/Colors";
+import Ionicons from '@expo/vector-icons/Ionicons';
+
 
 const WelcomeScreen = () => {
   const [username, setUsername] = useState(null);
@@ -29,28 +33,136 @@ const WelcomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>Welcome, {username}!</Text>
-
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
+      <ScrollView showsVerticalScrollIndicator={false}
+            // contentContainerStyle={{ paddingBottom: 20 }} // Add padding to the bottom
+      >
+      <View style={styles.header}>
+        <Text style={styles.top}>FixMyRide</Text>
+        <Ionicons name="notifications-outline" size={28} color="white" style={styles.notificationIcon} />
+      </View>
+      <View style={styles.greetingBox}>
+      <Text style={styles.greeting}>
+        Welcome!, {username}.
+      </Text>
+      </View>
+      <GoogleMapUn/>
+  
+      <Text style={{ fontFamily: "outfitBold", fontSize: 25, marginTop:10, marginLeft: 10 }}>Near by</Text>
+      <View style={styles.imageRow}>
+        <TouchableOpacity onPress={() =>router.push('/nearbyGas')}>
+          <Image
+          source={require('./../../assets/images/gasStation.png')}
+          style={{
+            width: 120,
+            height: 120,
+            borderRadius: 20,
+            marginTop: 20,
+          }}
+        />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/nearbyGarage')}>
+        <Image
+          source={require('./../../assets/images/garageStation.png')}
+          style={{
+            width: 120,
+            height: 120,
+            borderRadius: 20,
+            marginTop: 20,
+          }}
+        />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.textRow}>
+        <Text style={styles.imageText}>Gas Station</Text>
+        <Text style={styles.imageText}>Garage Station</Text>
+      </View>
+      <View style={styles.bookingImag}>
+        <Image source={require("./../../assets/images/serviceBooking.jpeg")}
+        style={{
+          width:150,
+          height:120,
+        }}
+        />
+        <Text style={{
+          fontFamily: "outfit",
+          fontSize: 20,
+        }}>Booking Service</Text>
+      </View>
+      </ScrollView>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
-  greeting: { fontSize: 28, fontWeight: "bold", marginBottom: 20 },
-  logoutButton: {
-    backgroundColor: "#f44336",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  logoutText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-});
+  
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: Colors.WHITE,
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: Colors.PRIMARY,
+      paddingHorizontal: 10,
+      paddingVertical: 30,
+      position: "relative",
+    },
+    top: {
+      fontSize: 30,
+      fontFamily: "outfit",
+      color: Colors.WHITE,
+      position: "absolute",
+      left: "50%",
+      transform: [{ translateX: -50 }],
+      marginTop: 20,
+    },
+    notificationIcon: {
+      marginLeft: 20,
+      marginTop: 20,
+    },
+    greeting: {
+      fontSize: 25,
+      fontFamily: "outfitBold",
+      textAlign: "center",
+       backgroundColor: Colors.WHITE,
+       borderRadius:20,
+       color:Colors.PRIMARY,
+    },
+    greetingBox: {
+      backgroundColor: "#CAD6FF",
+      borderRadius: 20,
+      padding: 10,
+      marginTop: 20,
+      marginLeft: 10,
+      marginRight: 10,
+      marginBottom: 20,
+    },
+    imageRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginRight: 40,
+      marginLeft: 40,
+    },
+    textRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    
+    },
+    imageText: {
+      fontFamily: "outfit",
+      fontSize: 20,
+      marginRight: 30,
+      marginTop: 10,
+      textAlign: "center",
+      alignItems: "center",
+      justifyContent: "center",
+      marginLeft: 45,
+    },
+   bookingImag:{
+   justifyContent:'center',
+   alignItems:'center',
+   marginTop:20,
+   }
+  });
 
 export default WelcomeScreen;

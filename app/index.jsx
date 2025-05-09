@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Colors from "../constant/Colors";
+import Colors from "./../constant/Colors";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -17,13 +17,12 @@ export default function HomeScreen() {
         if (token) {
           router.replace("/(tabs)/welcomeScreen");
         } else {
-          // If no token, navigate to the Login screen
-          router.replace("/auth1/login");
+          // If no token, stay on the index screen
+          console.log("No token found, staying on the index screen.");
         }
       } catch (error) {
         console.error("Error checking login status:", error);
-        // If an error occurs, navigate to the Login screen
-        router.replace("/auth1/login");
+        // If an error occurs, stay on the index screen
       }
     };
 
@@ -73,7 +72,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push("/auth1/register")}
+          onPress={() => router.push("/auth1/userSelection")}
         >
           <Text style={[styles.buttonText, { color: Colors.PRIMARY }]}>
             Get Started

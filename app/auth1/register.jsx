@@ -14,7 +14,7 @@ const RegisterScreen = () => {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post("http://10.56.69.162:9001/register", {
+      const response = await axios.post("http://10.246.171.162:9001/register", {
         name,
         email,
         mobile,

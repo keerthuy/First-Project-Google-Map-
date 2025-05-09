@@ -2,6 +2,8 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import { Tabs } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+
 export default function TabLayout() {
   return (
   <Tabs screenOptions = {{
@@ -13,16 +15,16 @@ export default function TabLayout() {
       tabBarLabel : 'Home'
     }}
     />
-    <Tabs.Screen name="explore"
+    <Tabs.Screen name="requestList"
     options={{
-      tabBarIcon:({color,size}) => <Ionicons name="search-outline" size={size} color={color} />,
-      tabBarLabel : 'Search'
+      tabBarIcon:({color,size}) => <Ionicons name="list" size={24} color="black" />,
+      tabBarLabel : 'Request list'
     }}
     />
-    <Tabs.Screen name="progress"
+    <Tabs.Screen name="invoice"
     options={{
-      tabBarIcon:({color,size}) => <Ionicons name="analytics-outline" size={size} color={color} />,
-      tabBarLabel : 'Progress'
+      tabBarIcon:({color,size}) => <FontAwesome5 name="file-invoice-dollar" size={24} color="black" /> ,
+      tabBarLabel : 'Invoice'
     }}
     />
     <Tabs.Screen name="profile"

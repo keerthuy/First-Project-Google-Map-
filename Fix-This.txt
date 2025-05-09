@@ -1,0 +1,2 @@
+You need nearbyGarage.jsx(/app) , nearbyGas.jsx(/app) and GoogleMap(Components)
+You need to update your API key to the package.json depandency
