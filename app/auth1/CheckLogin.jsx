@@ -17,7 +17,7 @@ const CheckLogin = () => {
       }
 
       try {
-        const res = await axios.post("http://10.246.171.162:9001/verify-token", { token });
+        const res = await axios.post("http://10.59.247.162:9001/verify-token", { token });
         if (res.data.status === "ok") {
           router.replace("/(tabs)/welcomeScreen");
         } else {

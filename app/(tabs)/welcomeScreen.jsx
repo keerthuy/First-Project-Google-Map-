@@ -49,7 +49,7 @@ const WelcomeScreen = () => {
   
       <Text style={{ fontFamily: "outfitBold", fontSize: 25, marginTop:10, marginLeft: 10 }}>Near by</Text>
       <View style={styles.imageRow}>
-        <TouchableOpacity onPress={() =>router.push('/nearbyGas')}>
+        <TouchableOpacity onPress={() =>router.push('/GoogleMaps/nearbyGas')}>
           <Image
           source={require('./../../assets/images/gasStation.png')}
           style={{
@@ -60,7 +60,7 @@ const WelcomeScreen = () => {
           }}
         />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/nearbyGarage')}>
+        <TouchableOpacity onPress={() => router.push('/GoogleMaps/nearbyGarage')}>
         <Image
           source={require('./../../assets/images/garageStation.png')}
           style={{

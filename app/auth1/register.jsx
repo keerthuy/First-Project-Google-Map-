@@ -13,20 +13,36 @@ const RegisterScreen = () => {
   const router = useRouter(); // Initialize the router hook
 
   const handleRegister = async () => {
-    try {
-      const response = await axios.post("http://10.246.171.162:9001/register", {
-        name,
-        email,
-        mobile,
-        password,
-      });
-      await AsyncStorage.setItem("username",name);
-      Alert.alert("Success", response.data.data);
-      router.push('/auth1/login'); // Redirect to login after registration
-    } catch (error) {
-      Alert.alert("Error", "Registration failed. Try again.");
+  try {
+    const response = await axios.post("http://10.59.247.162:9001/api/auth/register", {
+      name,
+      email: email.trim().toLowerCase(), // Normalize email
+      mobile,
+      password,
+      role: "user",
+    });
+
+    // Debug log (optional)
+    console.log("Registration response:", response.data);
+
+      if (response.data.status !== "ok") {
+      Alert.alert("Error", response.data.data);
+      return;
     }
-  };
+
+    // Save username, role, and token from login response
+    await AsyncStorage.setItem("username", response.data.username);
+    await AsyncStorage.setItem("role", response.data.role);  // Save role
+    await AsyncStorage.setItem("token", response.data.data);  // Save token
+
+    Alert.alert("Register successful");
+    router.push("/(tabs)/welcomeScreen");
+  } catch (error) {
+    console.error("Registration error:", error);
+    Alert.alert("Error", "Registration failed. Try again.");
+  }
+};
+
 
   return (
     <View style={{
