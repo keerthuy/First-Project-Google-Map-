@@ -77,16 +77,19 @@ const WelcomeScreen = () => {
         <Text style={styles.imageText}>Garage Station</Text>
       </View>
       <View style={styles.bookingImag}>
+        <TouchableOpacity onPress={() => router.push('/requestForms/ServiceBooking')}>
         <Image source={require("./../../assets/images/serviceBooking.jpeg")}
         style={{
           width:150,
           height:120,
         }}
         />
+         </TouchableOpacity>
         <Text style={{
           fontFamily: "outfit",
           fontSize: 20,
         }}>Booking Service</Text>
+       
       </View>
       </ScrollView>
     </View>

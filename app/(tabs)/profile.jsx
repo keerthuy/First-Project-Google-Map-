@@ -50,7 +50,7 @@ const Profile = () => {
           <Text style={styles.email}>{email}</Text>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={() => router.push("/prof/editProfile")}
+            onPress={() => router.push("/prof/edit-profile")}
           >
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
