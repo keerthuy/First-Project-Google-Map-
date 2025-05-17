@@ -17,7 +17,7 @@ const RequestFuelScreen =  () => {
   const handleSubmit = async () => {
     try{
     
-  const response = await axios.post("http://172.27.204.162:9001/api/request/fuel-List", {
+  const response = await axios.post("http://10.165.51.162:9001/api/request/fuel-List", {
        email,
        location,
        fuelType,
@@ -76,7 +76,7 @@ const RequestFuelScreen =  () => {
           value={location}
           onChangeText={setLocation}
         />
-          <Text style={styles.label}>Delivery Location</Text>
+          <Text style={styles.label}>Enter the email</Text>
 
         <TextInput
           style={styles.input}
