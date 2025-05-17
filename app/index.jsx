@@ -10,16 +10,18 @@ export default function HomeScreen() {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        // Check if the token exists in AsyncStorage
+        // Only redirect if token exists
         const token = await AsyncStorage.getItem("token");
+        const role = await AsyncStorage.getItem("role");
 
-        // If token exists, navigate to the Welcome screen
         if (token) {
-          router.replace("/(tabs)/welcomeScreen");
-        } else {
-          // If no token, stay on the index screen
-          console.log("No token found, staying on the index screen.");
+          if (role === "serviceProvider") {
+            router.replace("/(tabs1)/welcome");
+          } else {
+            router.replace("/(tabs)/welcomeScreen");
+          }
         }
+        // If no token, stay on the index screen
       } catch (error) {
         console.error("Error checking login status:", error);
         // If an error occurs, stay on the index screen

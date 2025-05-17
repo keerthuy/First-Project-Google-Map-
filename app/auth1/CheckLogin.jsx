@@ -9,7 +9,10 @@ const CheckLogin = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = await AsyncStorage.getItem("token");
+      const [token, role] = await Promise.all([
+          AsyncStorage.getItem("token"),
+          AsyncStorage.getItem("role"),
+        ]);
 
       if (!token) {
         router.replace("/");
@@ -17,9 +20,13 @@ const CheckLogin = () => {
       }
 
       try {
-        const res = await axios.post("http://10.59.247.162:9001/verify-token", { token });
+        const res = await axios.post("http://10.165.51.162:9001/verify-token", { token });
         if (res.data.status === "ok") {
+          if (role ==="serviceProvider"){
+            router.replace("/(tabs1)/welcome")
+          }else{
           router.replace("/(tabs)/welcomeScreen");
+          }
         } else {
           await AsyncStorage.clear();
           router.replace("/");

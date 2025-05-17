@@ -12,6 +12,8 @@ const ServiceBookingScreen = () => {
   const [vehicleType, setVehicleType] = useState('');
   const [garageName, setGarageName] = useState('');
 
+
+
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.container}>
@@ -35,7 +37,7 @@ const ServiceBookingScreen = () => {
               <Picker.Item label="Select Vehicle Type" value="" />
               <Picker.Item label="Car" value="car" />
               <Picker.Item label="Bike" value="bike" />
-              <Picker.Item label="Truck" value="truck" />
+              <Picker.Item label="Three Wheeler" value="Three Wheeler" />
             </Picker>
           </View>
 
@@ -55,6 +57,13 @@ const ServiceBookingScreen = () => {
           onPress={() => {
             console.log('Vehicle Type:', vehicleType);
             console.log('Garage Name:', garageName);
+  if(vehicleType === 'car'){
+    navigation.navigate('ServiceBookingCar');
+  } else if(vehicleType === 'bike'){
+    navigation.navigate('ServiceBookingBike');
+  }else if (vehicleType === 'Three Wheeler'){
+    navigation.navigate('ServiceBookingThreeWheeler');
+  }
           }}
         >
           <Text style={styles.nextButtonText}>Next</Text>

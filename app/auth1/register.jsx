@@ -14,7 +14,7 @@ const RegisterScreen = () => {
 
   const handleRegister = async () => {
   try {
-    const response = await axios.post("http://10.59.247.162:9001/api/auth/register", {
+    const response = await axios.post("http://10.165.51.162:9001/api/auth/register", {
       name,
       email: email.trim().toLowerCase(), // Normalize email
       mobile,
@@ -32,6 +32,7 @@ const RegisterScreen = () => {
 
     // Save username, role, and token from login response
     await AsyncStorage.setItem("username", response.data.username);
+    await AsyncStorage.setItem("email", response.data.email);  // Save email
     await AsyncStorage.setItem("role", response.data.role);  // Save role
     await AsyncStorage.setItem("token", response.data.data);  // Save token
 

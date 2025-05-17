@@ -27,7 +27,7 @@ export default function TabLayout() {
       tabBarLabel : 'Invoice'
     }}
     />
-    <Tabs.Screen name="profile"
+    <Tabs.Screen name="profileSer"
     options={{
       tabBarIcon:({color,size}) => <Ionicons name="person-circle-outline" size={size} color={color} />,
       tabBarLabel : 'Profile'

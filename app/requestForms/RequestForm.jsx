@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  Alert,
+  Image,
+  Platform,
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../constant/Colors';
 import { router } from 'expo-router';
 import axios from 'axios';
+import * as ImagePicker from 'expo-image-picker';
 
-const { width, height } = Dimensions.get('window'); // Get screen dimensions
+const { width, height } = Dimensions.get('window');
 
 const RequestForm = () => {
   const [email, setEmail] = useState('');
@@ -14,72 +26,110 @@ const RequestForm = () => {
   const [situation, setSituation] = useState('');
   const [vehicleBrand, setVehicleBrand] = useState('');
   const [vehicleModel, setVehicleModel] = useState('');
-  // const [image, setImage] = useState(null);
+  const [image, setImage] = useState(null);
 
-  const handleClear = () => {
-    setServiceType('');
-    setSituation('');
-    setVehicleBrand('');
-    setVehicleModel('');
-    // setImage(null);
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== 'web') {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted' || cameraStatus !== 'granted') {
+          Alert.alert('Permission denied', 'Camera and photo permissions are required.');
+        }
+      }
+    })();
+  }, []);
+
+  const handleImagePicker = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Image Picker Error:', error);
+      Alert.alert('Error', 'Failed to pick an image.');
+    }
+  };
+
+  const handleCamera = async () => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Camera Error:', error);
+      Alert.alert('Error', 'Failed to open camera.');
+    }
   };
 
   const handleSubmit = async () => {
-    console.log({
-      email,
-      serviceType,
-      situation,
-      vehicleBrand,
-      vehicleModel,
-      // image,
+    if (!email || !serviceType || !situation || !vehicleBrand || !vehicleModel || !image) {
+      Alert.alert('Error', 'Please fill out all fields and attach an image.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('serviceType', serviceType);
+    formData.append('situation', situation);
+    formData.append('vehicleBrand', vehicleBrand);
+    formData.append('vehicleModel', vehicleModel);
+    formData.append('image', {
+      uri: image,
+      type: 'image/jpeg',
+      name: 'photo.jpg',
     });
-    try{
-    
-  const response = await axios.post("http://10.59.247.162:9001/api/request/service-List", {
-        email,
-       serviceType,
-       situation,
-       vehicleBrand,
-       vehicleModel,
-      //  image,
-      });
 
-      console.log("Register response:", response.data);
+    try {
+      const response = await axios.post(
+        'http://172.27.204.162:9001/api/request/service-List',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
-      if (!response.data || response.data.status !== "ok") {
-        Alert.alert("Error", response.data?.data || "Submit request failed.");
+      console.log('Response:', response.data);
+
+      if (!response.data || response.data.status !== 'ok') {
+        Alert.alert('Error', response.data?.data || 'Submit request failed.');
         return;
       }
 
-    // try {
-    //     await AsyncStorage.setItem("username", response.data.username);
-    //     await AsyncStorage.setItem("role", response.data.role);
-    //     await AsyncStorage.setItem("token", response.data.data);
-    //   } catch (storageError) {
-    //     console.error("AsyncStorage error:", storageError);
-    //     Alert.alert("Error", "Failed to submit data. Please try again.");
-    //     return;
-    //   }
-
-      Alert.alert("submit successful");
-      router.push("/(tabs)/welcomeScreen");
+      Alert.alert('Submit Successful');
+      router.push('/(tabs)/welcomeScreen');
     } catch (error) {
       if (error.response) {
-        console.error("Server error:", error.response.data);
-        Alert.alert("Error", error.response.data.message || "Registration failed.");
+        console.error('Server error:', error.response.data);
+        Alert.alert('Error', error.response.data.message || 'Submit request failed.');
       } else if (error.request) {
-        console.error("Network error:", error.request);
-        Alert.alert("Error", "Network error. Please check your connection and try again.");
+        console.error('Network error:', error.request);
+        Alert.alert('Error', 'Network error. Please check your connection and try again.');
       } else {
-        console.error("Error:", error.message);
-        Alert.alert("Error", "An unexpected error occurred. Please try again.");
+        console.error('Error:', error.message);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
       }
     }
   };
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -89,15 +139,10 @@ const RequestForm = () => {
           <Text style={styles.top}>Requesting Repair</Text>
         </View>
 
-        
+        {/* Inputs */}
         <Text style={styles.label}>Type your Email</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-        />
+        <TextInput style={styles.input} value={email} onChangeText={setEmail} />
 
-        {/* Input Fields */}
         <Text style={styles.label}>Type of Service Request</Text>
         <View style={styles.pickerContainer}>
           <Picker
@@ -115,43 +160,32 @@ const RequestForm = () => {
 
         <Text style={styles.label}>Please briefly explain the situation</Text>
         <TextInput
-          style={[styles.input, { height: height * 0.15 }]} // Adjust height dynamically
+          style={[styles.input, { height: height * 0.15 }]}
           value={situation}
           onChangeText={setSituation}
           multiline
         />
 
-        {/* <Text style={styles.label}>Attach a Picture</Text>
+        <Text style={styles.label}>Attach a Picture</Text>
         <View style={styles.photoOptions}>
-          <TouchableOpacity style={styles.photoButton}>
+          <TouchableOpacity style={styles.photoButton} onPress={handleCamera}>
             <Ionicons name="camera" size={24} color="#007BFF" />
             <Text style={styles.photoButtonText}>Take a Photo</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.photoButton}>
+          <TouchableOpacity style={styles.photoButton} onPress={handleImagePicker}>
             <Ionicons name="image" size={24} color="#007BFF" />
             <Text style={styles.photoButtonText}>Add from Photos</Text>
           </TouchableOpacity>
-        </View> */}
+        </View>
+        {image && <Image source={{ uri: image }} style={styles.previewImage} />}
 
         <Text style={styles.label}>Vehicle Brand</Text>
-        <TextInput
-          style={styles.input}
-          value={vehicleBrand}
-          onChangeText={setVehicleBrand}
-        />
+        <TextInput style={styles.input} value={vehicleBrand} onChangeText={setVehicleBrand} />
 
         <Text style={styles.label}>Vehicle Model</Text>
-        <TextInput
-          style={styles.input}
-          value={vehicleModel}
-          onChangeText={setVehicleModel}
-        />
+        <TextInput style={styles.input} value={vehicleModel} onChangeText={setVehicleModel} />
 
-        {/* Buttons */}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-            <Text style={styles.buttonText}>Clear</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Submit</Text>
           </TouchableOpacity>
@@ -164,26 +198,31 @@ const RequestForm = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: width * 0.05, // Dynamic padding based on screen width
+    padding: width * 0.05,
     backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: height * 0.02, // Dynamic margin
-    marginTop: height * 0.01, // Dynamic margin
-
+    marginBottom: height * 0.02,
+    marginTop:height * 0.01,
   },
   top: {
-    fontSize: width * 0.08, // Dynamic font size
+    fontSize: width * 0.08,
     fontFamily: 'outfitBold',
     color: Colors.PRIMARY,
     marginLeft: width * 0.02,
   },
   label: {
-    fontSize: width * 0.045, // Dynamic font size
-    fontWeight: 'bold',
+    fontSize: width * 0.045,
     marginBottom: height * 0.01,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: width * 0.03,
+    marginBottom: height * 0.02,
   },
   pickerContainer: {
     borderWidth: 1,
@@ -192,15 +231,8 @@ const styles = StyleSheet.create({
     marginBottom: height * 0.02,
   },
   picker: {
-    height: height * 0.06, // Dynamic height
+    height: 50,
     width: '100%',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: width * 0.03, // Dynamic padding
-    marginBottom: height * 0.02,
   },
   photoOptions: {
     flexDirection: 'row',
@@ -210,43 +242,37 @@ const styles = StyleSheet.create({
   photoButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: width * 0.03, // Dynamic padding
+    padding: width * 0.03,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
     flex: 1,
-    marginHorizontal: width * 0.01, // Dynamic margin
+    marginHorizontal: width * 0.01,
   },
   photoButtonText: {
     marginLeft: width * 0.02,
     color: '#007BFF',
-    fontSize: width * 0.04, // Dynamic font size
+    fontSize: width * 0.04,
+  },
+  previewImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 5,
+    marginBottom: height * 0.02,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: height * 0.03, // Dynamic margin
-  },
-  clearButton: {
-    backgroundColor: '#f44336',
-    padding: height * 0.02, // Dynamic padding
-    borderRadius: 5,
-    flex: 1,
-    marginRight: width * 0.02, // Dynamic margin
-    alignItems: 'center',
+    marginTop: height * 0.03,
   },
   submitButton: {
     backgroundColor: '#4CAF50',
-    padding: height * 0.02, // Dynamic padding
+    padding: height * 0.02,
     borderRadius: 5,
-    flex: 1,
-    marginLeft: width * 0.02, // Dynamic margin
     alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: width * 0.045, // Dynamic font size
+    fontSize: width * 0.045,
   },
 });
 

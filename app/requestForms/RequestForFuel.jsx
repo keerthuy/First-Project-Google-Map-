@@ -17,7 +17,7 @@ const RequestFuelScreen =  () => {
   const handleSubmit = async () => {
     try{
     
-  const response = await axios.post("http://10.59.247.162:9001/api/request/fuel-List", {
+  const response = await axios.post("http://172.27.204.162:9001/api/request/fuel-List", {
        email,
        location,
        fuelType,
