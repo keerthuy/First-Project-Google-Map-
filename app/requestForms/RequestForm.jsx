@@ -96,7 +96,7 @@ const RequestForm = () => {
 
     try {
       const response = await axios.post(
-        'http://172.27.204.162:9001/api/request/service-List',
+        'http://10.139.250.162:9001/api/request/service-List',
         formData,
         {
           headers: {

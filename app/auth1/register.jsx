@@ -14,7 +14,7 @@ const RegisterScreen = () => {
 
   const handleRegister = async () => {
   try {
-    const response = await axios.post("http://10.165.51.162:9001/api/auth/register", {
+    const response = await axios.post("http://10.139.250.162:9001/api/auth/register", {
       name,
       email: email.trim().toLowerCase(), // Normalize email
       mobile,

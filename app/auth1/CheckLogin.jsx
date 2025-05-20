@@ -20,7 +20,7 @@ const CheckLogin = () => {
       }
 
       try {
-        const res = await axios.post("http://10.165.51.162:9001/verify-token", { token });
+        const res = await axios.post("http://10.139.250.162:9001/verify-token", { token });
         if (res.data.status === "ok") {
           if (role ==="serviceProvider"){
             router.replace("/(tabs1)/welcome")

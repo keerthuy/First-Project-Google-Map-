@@ -58,7 +58,7 @@ const RegisterScreen = () => {
     }
 
     try {
-      const response = await axios.post("http://10.165.51.162:9001/api/provider/register", {
+      const response = await axios.post("http://10.139.250.162:9001/api/provider/register", {
         businessName,
         ownerName,
         ownerNic,

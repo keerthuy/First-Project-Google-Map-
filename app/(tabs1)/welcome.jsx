@@ -1,9 +1,12 @@
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Colors from '../../constant/Colors';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { router } from 'expo-router';
+
 
 const Welcome = () => {
   const [requests, setRequests] = useState([]);
@@ -13,7 +16,7 @@ const Welcome = () => {
     const token = await AsyncStorage.getItem("token");
 
     try {
-      const response = await axios.get("http://10.165.51.162:9001/api/request/fuel-requests", {
+      const response = await axios.get("http://10.139.250.162:9001/api/request/fuel-requests", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -42,13 +45,18 @@ const Welcome = () => {
         <Text style={{ fontSize: 30, marginTop: 20, fontFamily: "outfit", marginLeft: 10 }}>
           Recent Requests
         </Text>
+    <TouchableOpacity onPress={()=> router.push("/fuelRequest/moreDetail")}>
         {requests.map((req) => (
-          <View key={req._id} style={styles.requestCard}>
-            <Text>🚗 Fuel Type: {req.fuelType}</Text>
-            <Text>📍 Location: {req.location}</Text>
-            <Text>⛽ Amount: {req.amount}</Text>
-          </View>
-        ))}
+  <View key={req._id} style={styles.requestCard}>
+    <View style={{ flex: 1 }}>
+      <Text>🚗 Fuel Type: {req.fuelType}</Text>
+      <Text>📍 Location: {req.location}</Text>
+      <Text>⛽ Amount: {req.amount}</Text>
+    </View>
+    <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
+  </View>
+))}
+</TouchableOpacity>
       </View>
     </View>
   );
@@ -84,10 +92,16 @@ const styles = StyleSheet.create({
   requestCard: {
     padding: 10,
     marginBottom: 10,
-    backgroundColor: "#eee",
+    backgroundColor: "#CAD6FF",
     marginHorizontal: 10,
-    borderRadius: 8,
+    borderRadius: 10,
+    flexDirection:"row",
+    alignItems:"center",
+    justifyContent:"space-between",
   },
+  arrow:{
+    marginRight: 25,
+  }
 });
 
 export default Welcome;
