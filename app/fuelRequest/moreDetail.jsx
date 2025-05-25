@@ -1,70 +1,56 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Colors from '../../constant/Colors'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function moreDetail() {
-   const [userData, setUserData] = useState(null);
+    const [requests, setRequests] = useState([]);
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://10.139.250.162:9001/api/auth/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+useEffect(() => {
+  const fetchRequests = async () => {
+    try {
+      const response = await fetch('http://10.139.250.162:9001/api/request/fuel-requests');
+      const data = await response.json();
+      console.log("Response data:", data); // Add this for debugging
+      setRequests(data.data); // FIXED: get only the array
+    } catch (error) {
+      console.error("Failed to load requests:", error);
+    }
+  };
 
-      if (res.ok) {
-        const data = await res.json();
-        setUserData(data);
-      } else {
-        console.error('Failed to fetch user data');
-      }
-    };
+  fetchRequests();
+}, []);
 
-    loadUserData();
-  }, []);
 
+const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Text style={styles.text}>User Name: {item.user?.name}</Text>
+      <Text style={styles.text}>Phone: {item.user?.mobile}</Text>
+      <Text style={styles.text}>Email: {item.user?.email}</Text>
+    </View>
+  );
 
   return (
     <View>
-
-      <Text style={styles.title}>Service Request</Text>
-      <View>
-         <Text style={{marginLeft:60, marginTop:40, fontFamily:"outfit", fontSize:25}}>User Details:</Text>
-        {userData ? (
-          <>
-            <Text style={styles.infoText}>Name: {userData.name}</Text>
-            <Text style={styles.infoText}>Email: {userData.email}</Text>
-            <Text style={styles.infoText}>Phone: {userData.phone}</Text>
-          </>
-        ) : (
-          <Text style={styles.infoText}>Loading user data...</Text>
-        )}
-      </View>
+     <FlatList
+      data={requests}
+      keyExtractor={(item) => item._id}
+      renderItem={renderItem}
+    />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  title: {
-      fontFamily: "outfitBold",
-      fontSize: 35,
-      color: Colors.PRIMARY,
-      textAlign: "center",
-      marginTop:40,
-    },
-     sectionTitle: {
-    marginLeft: 60,
-    marginTop: 40,
-    fontFamily: 'outfit',
-    fontSize: 25,
+   card: {
+    padding: 20,
+    backgroundColor: '#eee',
+    marginVertical: 10,
+    marginHorizontal: 20,
+    borderRadius: 10,
   },
-  infoText: {
-    marginLeft: 60,
-    fontFamily: 'outfit',
-    fontSize: 18,
-    marginTop: 10,
-  },
+  text: {
+    fontSize: 16,
+    color:"black",
+  }
 })
