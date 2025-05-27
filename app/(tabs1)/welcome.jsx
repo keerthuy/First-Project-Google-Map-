@@ -5,12 +5,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Colors from '../../constant/Colors';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 
 const Welcome = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { id } = useLocalSearchParams();
 
   const fetchRequests = async () => {
     const token = await AsyncStorage.getItem("token");
@@ -31,9 +32,11 @@ const Welcome = () => {
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+  }, [id]);
 
-  if (loading) return <ActivityIndicator size="large" color="#000" style={{ marginTop: 50 }} />;
+ 
+  if (loading) return <ActivityIndicator />;
+  if (!requests) return <Text>No details found.</Text>;
 
   return (
     <View style={styles.container}>
@@ -45,18 +48,17 @@ const Welcome = () => {
         <Text style={{ fontSize: 30, marginTop: 20, fontFamily: "outfit", marginLeft: 10 }}>
           Recent Requests
         </Text>
-    <TouchableOpacity onPress={()=> router.push("/fuelRequest/moreDetail")}>
+  
         {requests.map((req) => (
-  <View key={req._id} style={styles.requestCard}>
+      <TouchableOpacity key={req._id} style={styles.requestCard} onPress={()=> router.push({pathname: "/fuelRequest/moreDetail" , params:{ id : req._id}}) }>
     <View style={{ flex: 1 }}>
       <Text>🚗 Fuel Type: {req.fuelType}</Text>
       <Text>📍 Location: {req.location}</Text>
       <Text>⛽ Amount: {req.amount}</Text>
     </View>
     <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
-  </View>
+    </TouchableOpacity>
 ))}
-</TouchableOpacity>
       </View>
     </View>
   );
