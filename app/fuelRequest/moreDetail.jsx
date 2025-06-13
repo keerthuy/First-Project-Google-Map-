@@ -1,8 +1,12 @@
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Colors from '../../constant/Colors'
-import { useLocalSearchParams, usePathname } from 'expo-router'
+import { router, useLocalSearchParams, usePathname } from 'expo-router'
 import { push } from 'expo-router/build/global-state/routing';
+import config from '../../constant/config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 export default function MoreDetail() {
   const [request, setRequest] = useState(null);
@@ -12,7 +16,7 @@ export default function MoreDetail() {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch('http://10.139.250.162:9001/api/request/fuel-requests');
+        const response = await fetch(`${config.API_BASE_URL}/api/request/fuel-requests`);
         const data = await response.json();
         const found = data.data.find((item) => item._id === id);
         setRequest(found);
@@ -25,6 +29,37 @@ export default function MoreDetail() {
 
     fetchRequests();
   }, [id]);
+
+const handleAccept = async () => {
+  try {
+    // 1. Accept request in backend
+    await fetch(`${config.API_BASE_URL}/api/request/fuel-requests/${request._id}/accept`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "accepted" }),
+    });
+
+    // 2. Get existing accepted IDs
+    const existing = await AsyncStorage.getItem('acceptedRequests');
+    let acceptedRequests = existing ? JSON.parse(existing) : [];
+
+    // 3. Add current request if not already added
+    if (!acceptedRequests.includes(request._id)) {
+      acceptedRequests.push(request._id);
+      await AsyncStorage.setItem('acceptedRequests', JSON.stringify(acceptedRequests));
+
+
+     
+
+    }
+
+    // 4. Navigate to billMaking
+    router.push('/(tabs1)/billMaking');
+
+  } catch (error) {
+    Alert.alert("Error", "Failed to accept request.");
+  }
+};
 
   if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
   if (!request) return <Text style={styles.text}>No details found.</Text>;
@@ -43,11 +78,13 @@ export default function MoreDetail() {
     </View>
 
      <View  style={{ flexDirection:"row", justifyContent:"space-around", marginTop:20}}>
-      <TouchableOpacity style={styles.acceptButton}>
-    <Text style={{padding:20,fontSize:15,fontFamily:'outfit'}}>Accept</Text>
-       </TouchableOpacity>
-       <TouchableOpacity style={styles.acceptButton}>
-    <Text  style={{padding:20,fontSize:15,fontFamily:'outfit'}}>Decline</Text>
+   <TouchableOpacity style={styles.acceptButton} onPress={handleAccept}>
+  <Text style={{padding:20,fontSize:15,fontFamily:'outfit',color:"white"}}>Accept</Text>
+</TouchableOpacity>
+
+
+       <TouchableOpacity style={styles.acceptButton} onPress={() => router.push('/(tabs1)/welcome')}>
+    <Text  style={{padding:20,fontSize:15,fontFamily:'outfit', color:"white"}}>Decline</Text>
      </TouchableOpacity>
     </View>
 

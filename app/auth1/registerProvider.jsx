@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import Colors from "../../constant/Colors";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import config from "../../constant/config";
 
 const RegisterScreen = () => {
   const [businessName, setBusinessName] = useState("");
@@ -31,6 +32,12 @@ const RegisterScreen = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+
+  const passwordRegex = /^(?=.*\d).{8,}$/;
+  if(!passwordRegex.test(password)){
+    Alert.alert("Invalid Password","Password must be at least 8 characters long and contain at least one number");
+    return;
+  }
 
   const handleRegister = async () => {
     if (
@@ -58,7 +65,7 @@ const RegisterScreen = () => {
     }
 
     try {
-      const response = await axios.post("http://10.139.250.162:9001/api/provider/register", {
+      const response = await axios.post(`${config.API_BASE_URL}/api/provider/register`, {
         businessName,
         ownerName,
         ownerNic,

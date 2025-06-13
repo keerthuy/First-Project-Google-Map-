@@ -4,6 +4,7 @@ import axios from "axios";
 import { useRouter } from "expo-router"; // Import the router hook
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from "../../constant/Colors";
+import config from "../../constant/config";
 
 const RegisterScreen = () => {
   const [name, setName] = useState("");
@@ -13,8 +14,30 @@ const RegisterScreen = () => {
   const router = useRouter(); // Initialize the router hook
 
   const handleRegister = async () => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRegex.test(email.trim())){
+    Alert.alert("Invalid Email","please enter a valid email address");
+    return;
+  }
+
+  const passwordRegex = /^(?=.*\d).{8,}$/;
+  if(!passwordRegex.test(password)){
+    Alert.alert("Invalid Password","Password must be at least 8 characters long and contain at least one number");
+    return;
+  }
+
+  if (
+      !name ||
+      !email ||
+      !mobile ||
+      !password 
+    ) {
+      Alert.alert("Error", "All fields are required.");
+      return;
+    }
+
   try {
-    const response = await axios.post("http://10.139.250.162:9001/api/auth/register", {
+    const response = await axios.post(`${config.API_BASE_URL}/api/auth/register`, {
       name,
       email: email.trim().toLowerCase(), // Normalize email
       mobile,

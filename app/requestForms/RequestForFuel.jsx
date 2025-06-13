@@ -5,6 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import config from '../../constant/config';
 
 const { width, height } = Dimensions.get('window'); // Get screen dimensions
 
@@ -15,9 +16,22 @@ const RequestFuelScreen =  () => {
   const [amount, setAmount] = useState('');
 
   const handleSubmit = async () => {
-    try{
+
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailRegex.test(email.trim())){
+    Alert.alert("Invalid Email","please enter a valid email address");
+    return;
+  }
+
+    if (!/^\d+$/.test(amount)) {
+    Alert.alert("Invalid Amount", "Full Amount must be an integer value.");
+    return;
+  }
+  
+try{
     
-  const response = await axios.post("http://10.139.250.162:9001/api/request/fuel-List", {
+  const response = await axios.post(`${config.API_BASE_URL}/api/request/fuel-List`, {
        email,
        location,
        fuelType,

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigation, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from "../../constant/Colors";
+import config from "../../constant/config";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -18,7 +19,7 @@ const LoginScreen = () => {
     }
 
     try {
-      const response = await axios.post("http://10.139.250.162:9001/api/auth/login", {
+      const response = await axios.post(`${config.API_BASE_URL}/api/auth/login`, {
         email,
         password,
       });

@@ -17,6 +17,7 @@ import Colors from '../../constant/Colors';
 import { router } from 'expo-router';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
+import config from '../../constant/config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -96,7 +97,7 @@ const RequestForm = () => {
 
     try {
       const response = await axios.post(
-        'http://10.139.250.162:9001/api/request/service-List',
+        `${config.API_BASE_URL}/api/request/service-List`,
         formData,
         {
           headers: {

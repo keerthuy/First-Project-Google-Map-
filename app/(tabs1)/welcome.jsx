@@ -6,7 +6,7 @@ import axios from 'axios';
 import Colors from '../../constant/Colors';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { router, useLocalSearchParams } from 'expo-router';
-
+import config from '../../constant/config';
 
 const Welcome = () => {
   const [requests, setRequests] = useState([]);
@@ -17,12 +17,23 @@ const Welcome = () => {
     const token = await AsyncStorage.getItem("token");
 
     try {
-      const response = await axios.get("http://10.139.250.162:9001/api/request/fuel-requests", {
+      // Fetch from API
+      const response = await axios.get(`${config.API_BASE_URL}/api/request/fuel-requests`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setRequests(response.data.data);
+
+      const allRequests = response.data.data;
+
+      // Fetch accepted request IDs from AsyncStorage
+      const acceptedJSON = await AsyncStorage.getItem("acceptedRequests");
+      const acceptedIDs = acceptedJSON ? JSON.parse(acceptedJSON) : [];
+
+      // Filter out accepted requests
+      const filtered = allRequests.filter(req => !acceptedIDs.includes(req._id));
+
+      setRequests(filtered);
     } catch (error) {
       console.error("Error fetching requests:", error);
     } finally {
@@ -34,9 +45,8 @@ const Welcome = () => {
     fetchRequests();
   }, [id]);
 
- 
-  if (loading) return <ActivityIndicator />;
-  if (!requests) return <Text>No details found.</Text>;
+  if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
+  if (!requests.length) return <Text style={{ textAlign: 'center', marginTop: 50 }}>No new requests</Text>;
 
   return (
     <View style={styles.container}>
@@ -48,17 +58,21 @@ const Welcome = () => {
         <Text style={{ fontSize: 30, marginTop: 20, fontFamily: "outfit", marginLeft: 10 }}>
           Recent Requests
         </Text>
-  
+
         {requests.map((req) => (
-      <TouchableOpacity key={req._id} style={styles.requestCard} onPress={()=> router.push({pathname: "/fuelRequest/moreDetail" , params:{ id : req._id}}) }>
-    <View style={{ flex: 1 }}>
-      <Text>🚗 Fuel Type: {req.fuelType}</Text>
-      <Text>📍 Location: {req.location}</Text>
-      <Text>⛽ Amount: {req.amount}</Text>
-    </View>
-    <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
-    </TouchableOpacity>
-))}
+          <TouchableOpacity
+            key={req._id}
+            style={styles.requestCard}
+            onPress={() => router.push({ pathname: "/fuelRequest/moreDetail", params: { id: req._id } })}
+          >
+            <View style={{ flex: 1 }}>
+              <Text>🚗 Fuel Type: {req.fuelType}</Text>
+              <Text>📍 Location: {req.location}</Text>
+              <Text>⛽ Amount: {req.amount}</Text>
+            </View>
+            <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
+          </TouchableOpacity>
+        ))}
       </View>
     </View>
   );
@@ -97,11 +111,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#CAD6FF",
     marginHorizontal: 10,
     borderRadius: 10,
-    flexDirection:"row",
-    alignItems:"center",
-    justifyContent:"space-between",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  arrow:{
+  arrow: {
     marginRight: 25,
   }
 });
