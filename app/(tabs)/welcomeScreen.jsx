@@ -38,7 +38,9 @@ const WelcomeScreen = () => {
       >
       <View style={styles.header}>
         <Text style={styles.top}>FixMyRide</Text>
+      <TouchableOpacity onPress={() => router.push('/noti/notification')} > 
         <Ionicons name="notifications-outline" size={28} color="white" style={styles.notificationIcon} />
+    </TouchableOpacity>
       </View>
       <View style={styles.greetingBox}>
       <Text style={styles.greeting}>

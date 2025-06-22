@@ -64,7 +64,7 @@ export default function BillMaking() {
   return (
     <ScrollView style={styles.container}>
        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push('/GoogleMaps/nearbyGas')}>
+          <TouchableOpacity onPress={() => router.push('/welcome')}>
             <Ionicons name="chevron-back" size={width * 0.08} color="#2260FF" />
           </TouchableOpacity>
           <Text style={styles.top}>Make Bill</Text>
@@ -84,7 +84,7 @@ export default function BillMaking() {
 
             <TouchableOpacity
               style={styles.completeButton}
-              onPress={() => handleComplete(request._id)}
+              onPress={() => router.push({ pathname: '/bill/bills', params: { id: request._id } })} // Navigate to more details
             >
               <Text style={styles.buttonText}>Complete</Text>
             </TouchableOpacity>
@@ -131,10 +131,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    fontFamily:'outfit'
   },
   userDetail: {
     fontSize: 16,
     marginBottom: 5,
+    fontFamily:'outfit'
   },
   completeButton: {
     backgroundColor: Colors.PRIMARY,

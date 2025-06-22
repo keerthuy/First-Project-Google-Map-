@@ -46,7 +46,7 @@ const Welcome = () => {
   }, [id]);
 
   if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
-  if (!requests.length) return <Text style={{ textAlign: 'center', marginTop: 50 }}>No new requests</Text>;
+  // if (!requests.length) return <Text style={{ textAlign: 'center', marginTop: 50 }}>No new requests</Text>;
 
   return (
     <View style={styles.container}>
