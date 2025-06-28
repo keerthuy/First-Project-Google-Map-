@@ -26,6 +26,7 @@ const RegisterScreen = () => {
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
+  const [placeId, setPlaceId] = useState("");
   const router = useRouter();
 
   const isValidEmail = (email) => {
@@ -33,11 +34,11 @@ const RegisterScreen = () => {
     return emailRegex.test(email);
   };
 
-  const passwordRegex = /^(?=.*\d).{8,}$/;
-  if(!passwordRegex.test(password)){
-    Alert.alert("Invalid Password","Password must be at least 8 characters long and contain at least one number");
-    return;
-  }
+  // const passwordRegex = /^(?=.*\d).{8,}$/;
+  // if(!passwordRegex.test(password)){
+  //   Alert.alert("Invalid Password","Password must be at least 8 characters long and contain at least one number");
+  //   return;
+  // }
 
   const handleRegister = async () => {
     if (
@@ -74,6 +75,7 @@ const RegisterScreen = () => {
         email,
         mobile,
         password,
+        placeId,
       });
 
       console.log("Register response:", response.data);
@@ -126,6 +128,7 @@ const RegisterScreen = () => {
           <TextInput placeholder="Owner Name" style={styles.textInput} onChangeText={setOwnerName} />
           <TextInput placeholder="Owner NIC" style={styles.textInput} onChangeText={setOwnerNic} />
           <TextInput placeholder="Address" style={styles.textInput} onChangeText={setAddress} />
+          <TextInput placeholder="Place ID" style={styles.textInput} onChangeText={setPlaceId}/>
           <TextInput placeholder="Licence Number" style={styles.textInput} onChangeText={setLicenceNumber} />
           <TextInput placeholder="Tel No" style={styles.textInput} onChangeText={setMobile} />
           <TextInput placeholder="Email" style={styles.textInput} onChangeText={setEmail} />

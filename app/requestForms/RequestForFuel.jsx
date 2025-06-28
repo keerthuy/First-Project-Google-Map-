@@ -6,10 +6,12 @@ import { router } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../constant/config';
-
+import { useLocalSearchParams } from 'expo-router';
 const { width, height } = Dimensions.get('window'); // Get screen dimensions
 
 const RequestFuelScreen =  () => {
+
+  const {name ,latitude, longitude,placeId} = useLocalSearchParams();
   const [location, setLocation] = useState('');
   const [email,setEmail] = useState('');
   const [fuelType, setFuelType] = useState('');
@@ -81,7 +83,10 @@ try{
           </TouchableOpacity>
           <Text style={styles.top}>Requesting Fuel</Text>
         </View>
-
+       <View>
+      <Text style={{fontFamily:'outfit', fontSize:22, marginBottom:10,}}>{name}</Text>
+      {/* form fields for fuel type, amount, etc */}
+    </View>
         {/* Delivery Location */}
         <Text style={styles.label}>Delivery Location</Text>
         <TextInput
@@ -91,7 +96,7 @@ try{
           onChangeText={setLocation}
         />
           <Text style={styles.label}>Enter the email</Text>
-
+        
         <TextInput
           style={styles.input}
           placeholder="Enter your Email"
