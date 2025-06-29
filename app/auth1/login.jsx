@@ -36,8 +36,15 @@ const LoginScreen = () => {
       await AsyncStorage.setItem("email", response.data.email);
       await AsyncStorage.setItem("role", response.data.role);
       await AsyncStorage.setItem("token", response.data.data);
+    //  await AsyncStorage.setItem("placeId", response.data.placeI);
+      if (response.data.placeId) {
+  await AsyncStorage.setItem("placeId", response.data.placeId);
+  console.log("Stored placeId:", response.data.placeId);
+} else {
+  await AsyncStorage.removeItem("placeId"); // Clean up for regular users
+  console.log("No placeId provided in login response");
+}
 
-     
       Alert.alert("Login successful");
 
       if (response.data.role === "user") {

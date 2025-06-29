@@ -15,24 +15,22 @@ const Welcome = () => {
 
   const fetchRequests = async () => {
     const token = await AsyncStorage.getItem("token");
-
+    const placeId = await AsyncStorage.getItem("placeId");
     try {
-      // Fetch from API
       const response = await axios.get(`${config.API_BASE_URL}/api/request/fuel-requests`, {
+        params: {
+          placeId: placeId
+        } ,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       const allRequests = response.data.data;
-
-      // Fetch accepted request IDs from AsyncStorage
       const acceptedJSON = await AsyncStorage.getItem("acceptedRequests");
       const acceptedIDs = acceptedJSON ? JSON.parse(acceptedJSON) : [];
 
-      // Filter out accepted requests
       const filtered = allRequests.filter(req => !acceptedIDs.includes(req._id));
-
       setRequests(filtered);
     } catch (error) {
       console.error("Error fetching requests:", error);
@@ -46,7 +44,6 @@ const Welcome = () => {
   }, [id]);
 
   if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
-  // if (!requests.length) return <Text style={{ textAlign: 'center', marginTop: 50 }}>No new requests</Text>;
 
   return (
     <View style={styles.container}>
@@ -59,20 +56,24 @@ const Welcome = () => {
           Recent Requests
         </Text>
 
-        {requests.map((req) => (
-          <TouchableOpacity
-            key={req._id}
-            style={styles.requestCard}
-            onPress={() => router.push({ pathname: "/fuelRequest/moreDetail", params: { id: req._id } })}
-          >
-            <View style={{ flex: 1 }}>
-              <Text>🚗 Fuel Type: {req.fuelType}</Text>
-              <Text>📍 Location: {req.location}</Text>
-              <Text>⛽ Amount: {req.amount}</Text>
-            </View>
-            <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
-          </TouchableOpacity>
-        ))}
+        {requests.length > 0 ? (
+          requests.map((req) => (
+            <TouchableOpacity
+              key={req._id}
+              style={styles.requestCard}
+              onPress={() => router.push({ pathname: "/fuelRequest/moreDetail", params: { id: req._id } })}
+            >
+              <View style={{ flex: 1 }}>
+                <Text>🚗 Fuel Type: {req.fuelType}</Text>
+                <Text>📍 Location: {req.location}</Text>
+                <Text>⛽ Amount: {req.amount}</Text>
+              </View>
+              <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={{ textAlign: 'center', marginTop: 50 }}>No new requests</Text>
+        )}
       </View>
     </View>
   );

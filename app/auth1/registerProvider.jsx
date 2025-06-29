@@ -27,7 +27,7 @@ const RegisterScreen = () => {
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [placeId, setPlaceId] = useState("");
-  const router = useRouter();
+  const router = useRouter(); 
 
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -85,16 +85,27 @@ const RegisterScreen = () => {
         return;
       }
 
-      try {
-        await AsyncStorage.setItem("username", response.data.username);
-        await AsyncStorage.setItem("email",response.data.email)
-        await AsyncStorage.setItem("role", response.data.role);
-        await AsyncStorage.setItem("token", response.data.data);
-      } catch (storageError) {
-        console.error("AsyncStorage error:", storageError);
-        Alert.alert("Error", "Failed to save registration data. Please try again.");
-        return;
-      }
+try {
+  const {data} = response.data;
+  await AsyncStorage.setItem("username", response.data.username);
+  await AsyncStorage.setItem("email", response.data.email);
+  await AsyncStorage.setItem("role", response.data.role);
+  await AsyncStorage.setItem("token", response.data.data);
+
+  // ✅ Check and store placeId safely
+  
+if (data.placeId && typeof data.placeId === "string") {
+  await AsyncStorage.setItem("placeId", data.placeId);
+} else {
+  console.warn("placeId is missing or invalid:", data.placeId);
+  await AsyncStorage.removeItem("placeId");
+}
+
+} catch (storageError) {
+  console.error("AsyncStorage error:", storageError);
+  Alert.alert("Error", "Failed to save registration data. Please try again.");
+  return;
+}
 
       Alert.alert("Register successful");
       router.push("/(tabs1)/welcome");
