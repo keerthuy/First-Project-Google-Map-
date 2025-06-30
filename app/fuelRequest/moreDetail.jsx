@@ -20,6 +20,16 @@ export default function MoreDetail() {
           }
         });
 
+        // Check content-type before parsing
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await response.text();
+          console.error("Expected JSON but got:", text);
+          setRequest(null);
+          setLoading(false);
+          return;
+        }
+
         const result = await response.json();
 
         if (response.ok && result.status === "ok") {
@@ -30,6 +40,7 @@ export default function MoreDetail() {
         }
       } catch (error) {
         console.error("Failed to load request:", error);
+        setRequest(null);
       } finally {
         setLoading(false);
       }
