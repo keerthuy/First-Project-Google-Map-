@@ -4,6 +4,7 @@ import Colors from '../../constant/Colors';
 import { router, useLocalSearchParams } from 'expo-router';
 import config from '../../constant/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function MoreDetail() {
   const [request, setRequest] = useState(null);
@@ -20,13 +21,11 @@ export default function MoreDetail() {
           }
         });
 
-        // Check content-type before parsing
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           const text = await response.text();
           console.error("Expected JSON but got:", text);
           setRequest(null);
-          setLoading(false);
           return;
         }
 
@@ -49,14 +48,14 @@ export default function MoreDetail() {
     fetchRequestById();
   }, [id]);
 
+  // ✅ Accept handler to update request status
   const handleAccept = async () => {
     try {
-      await fetch(`${config.API_BASE_URL}/api/request/fuel-requests/${request._id}/accept`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "accepted" }),
-      });
+      // Call backend to update status
+    const res = await axios.patch(`${config.API_BASE_URL}/api/request/fuel-requests/${request._id}/accept`);
 
+
+      // Store locally if needed
       const existing = await AsyncStorage.getItem('acceptedRequests');
       let acceptedRequests = existing ? JSON.parse(existing) : [];
 
@@ -65,9 +64,25 @@ export default function MoreDetail() {
         await AsyncStorage.setItem('acceptedRequests', JSON.stringify(acceptedRequests));
       }
 
+      Alert.alert("Success", "Request accepted successfully.");
       router.push('/(tabs1)/billMaking');
     } catch (error) {
+      console.error("Error accepting request", error);
       Alert.alert("Error", "Failed to accept request.");
+    }
+  };
+
+  const handleDecline = async() => {
+    try{
+      const res = await axios.patch(`${config.API_BASE_URL}/api/request/fuel-requests/${request._id}/reject`);
+      Alert.alert("Success", "Request rejected successfully.");
+
+    }catch(error){
+    console.error("Error accepting request", error);
+      Alert.alert("Error", "Failed to accept request.");
+    }
+    if (handleDecline){
+      router.push('/(tabs1)/welcome');
     }
   };
 
@@ -92,7 +107,7 @@ export default function MoreDetail() {
           <Text style={styles.buttonText}>Accept</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.acceptButton} onPress={() => router.push('/(tabs1)/welcome')}>
+        <TouchableOpacity style={styles.acceptButton} onPress={handleDecline}>
           <Text style={styles.buttonText}>Decline</Text>
         </TouchableOpacity>
       </View>
