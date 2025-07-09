@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
 import axios from 'axios';
 import config from '../../constant/config';
+import Colors from '../../constant/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+
+const { width , height } = Dimensions.get('window');
 
 export default function AllRequestsScreen() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+
+
+const { width , height } = Dimensions.get('window');
 
   useEffect(() => {
     const fetchAllRequests = async () => {
@@ -39,7 +47,8 @@ export default function AllRequestsScreen() {
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.userText}>User: {item.user?.name || item.user?.email}</Text>
+      <View style={{fontFamily:'outfit'}}>
+      <Text style={styles.userText}>{item.gasStation.name}</Text>
       <Text>Fuel Type: {item.fuelType}</Text>
       <Text>Amount: {item.amount}L</Text>
       <Text>
@@ -48,30 +57,59 @@ export default function AllRequestsScreen() {
           {item.status || 'Pending'}
         </Text>
       </Text>
+      </View>
     </View>
   );
 
   if (loading) return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
 
   return (
-    <FlatList
-      data={requests}
-      keyExtractor={(item) => item._id}
-      renderItem={renderItem}
-      contentContainerStyle={{ padding: 16 }}
-    />
+   
+  <View style={{ flex: 1, backgroundColor: "#fff" }}>
+    <View style={styles.header}>
+      <TouchableOpacity onPress={() => router.push('/welcomeScreen')}>
+        <Ionicons name="chevron-back" size={width * 0.08} color="#2260FF" />
+      </TouchableOpacity>
+      <Text style={styles.top}>Requesting Fuel List</Text>
+      <View style={{ width: width * 0.10 }} />
+    </View>
+    <View style={{ backgroundColor: Colors.PRIMARY, borderRadius: 15, flex: 1 }}>
+      <FlatList
+        data={requests}
+        keyExtractor={(item) => item._id}
+        renderItem={renderItem}
+        contentContainerStyle={{ padding: 16 }}
+      />
+    </View>
+  </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: 'white',
     padding: 15,
     borderRadius: 8,
-    marginBottom: 12
+    marginBottom: 12,
+    borderRadius:10
   },
   userText: {
     fontWeight: 'bold',
     marginBottom: 4,
-  }
+  },
+  header: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: height * 0.02,
+  marginTop: height * 0.04,
+  
+},
+top: {
+  fontSize: width * 0.08,
+  fontFamily: 'outfitBold',
+  color: Colors.PRIMARY,
+  textAlign: 'center',
+  flex: 1,
+},
 });
