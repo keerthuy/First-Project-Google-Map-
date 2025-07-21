@@ -138,7 +138,7 @@ export default function BillMaking() {
             <TouchableOpacity
               style={styles.completeButton}
               onPress={() =>
-                router.push({ pathname: '/bill/bills', params: { id: request._id } })
+                router.push({ pathname: '/bill/billFuel', params: { id: request._id } })
               }
             >
               <Text style={styles.buttonText}>Complete</Text>

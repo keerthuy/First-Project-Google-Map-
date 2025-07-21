@@ -24,6 +24,41 @@ export default function MakeBillScreen() {
     Number(serviceCharge || 0) +
     Number(otherCharge || 0);
 
+  const handleSubmit = async () => {
+     try {
+        const response = await axios.post(`${config.API_BASE_URL}/api/request/bills`, {
+          //  items.name,
+          //   items.cost,
+            serviceCharge,
+            otherCharge,
+            total,
+
+          },
+      );
+  
+        console.log("Submit response:", response.data);
+  
+        if (!response.data || response.data.status !== "ok") {
+          Alert.alert("Error", response.data?.data || "Submit request failed.");
+          return;
+        }
+  
+        Alert.alert("Request submitted successfully");
+        router.push("/(tabs)/welcomeScreen");
+      } catch (error) {
+        if (error.response) {
+          console.error("Server error:", error.response.data);
+          Alert.alert("Error", error.response.data.message || "Submission failed.");
+        } else if (error.request) {
+          console.error("Network error:", error.request);
+          Alert.alert("Error", "Check your internet connection.");
+        } else {
+          console.error("Error:", error.message);
+          Alert.alert("Error", "Something went wrong.");
+        }
+      }
+    };
+
   return (
     <ScrollView style={styles.container}>
       

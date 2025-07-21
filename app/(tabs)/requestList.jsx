@@ -68,7 +68,7 @@ const { width , height } = Dimensions.get('window');
   <View style={{ flex: 1, backgroundColor: "#fff" }}>
     <View style={styles.header}>
       <TouchableOpacity onPress={() => router.push('/welcomeScreen')}>
-        <Ionicons name="chevron-back" size={width * 0.08} color="#2260FF" />
+        <Ionicons name="chevron-back" size={width * 0.10} color="#2260FF" />
       </TouchableOpacity>
       <Text style={styles.top}>Requesting Fuel List</Text>
       <View style={{ width: width * 0.10 }} />
