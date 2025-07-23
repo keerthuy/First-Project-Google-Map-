@@ -22,7 +22,7 @@ const ServiceBookingScreen = () => {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="chevron-back" size={width * 0.08} color="#2260FF" />
           </TouchableOpacity>
-          <Text style={styles.top}>Requesting Repair</Text>
+          <Text style={styles.top}>Make Booking</Text>
         </View>
 
         {/* Questions */}

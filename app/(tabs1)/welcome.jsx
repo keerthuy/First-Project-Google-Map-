@@ -13,31 +13,74 @@ const Welcome = () => {
   const [loading, setLoading] = useState(true);
   const { id } = useLocalSearchParams();
 
-  const fetchRequests = async () => {
-    const token = await AsyncStorage.getItem("token");
-    const placeId = await AsyncStorage.getItem("placeId");
-    try {
-      const response = await axios.get(`${config.API_BASE_URL}/api/request/fuel-requests`, {
-        params: {
-          placeId: placeId
-        } ,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
 
-      const allRequests = response.data.data;
-      const acceptedJSON = await AsyncStorage.getItem("acceptedRequests");
-      const acceptedIDs = acceptedJSON ? JSON.parse(acceptedJSON) : [];
 
-      const filtered = allRequests.filter(req => !acceptedIDs.includes(req._id));
-      setRequests(filtered);
-    } catch (error) {
-      console.error("Error fetching requests:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchRequests = async () => {
+  const token = await AsyncStorage.getItem("token");
+  const placeId = await AsyncStorage.getItem("placeId");
+
+  try {
+    const [fuelRes, serviceRes] = await Promise.all([
+      axios.get(`${config.API_BASE_URL}/api/request/fuel-requests`, {
+        params: { placeId },
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+      axios.get(`${config.API_BASE_URL}/api/request/service-requests`, {
+        params: { placeId },
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ]);
+
+    const fuelRequests = fuelRes.data.data.map(req => ({
+      ...req,
+      type: 'fuel',
+    }));
+
+    const serviceRequests = serviceRes.data.data.map(req => ({
+      ...req,
+      type: 'service',
+    }));
+
+    const allRequests = [...fuelRequests, ...serviceRequests];
+
+    const acceptedJSON = await AsyncStorage.getItem("acceptedRequests");
+    const acceptedIDs = acceptedJSON ? JSON.parse(acceptedJSON) : [];
+
+    const filtered = allRequests.filter(req => !acceptedIDs.includes(req._id));
+    setRequests(filtered);
+  } catch (error) {
+    console.error("Error fetching requests:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // const fetchRequests = async () => {
+  //   const token = await AsyncStorage.getItem("token");
+  //   const placeId = await AsyncStorage.getItem("placeId");
+  //   try {
+  //     const response = await axios.get(`${config.API_BASE_URL}/api/request/fuel-requests`, {
+  //       params: {
+  //         placeId: placeId
+  //       } ,
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     const allRequests = response.data.data;
+  //     const acceptedJSON = await AsyncStorage.getItem("acceptedRequests");
+  //     const acceptedIDs = acceptedJSON ? JSON.parse(acceptedJSON) : [];
+
+  //     const filtered = allRequests.filter(req => !acceptedIDs.includes(req._id));
+  //     setRequests(filtered);
+  //   } catch (error) {
+  //     console.error("Error fetching requests:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     fetchRequests();
@@ -56,24 +99,39 @@ const Welcome = () => {
           Recent Requests
         </Text>
 
-        {requests.length > 0 ? (
-          requests.map((req) => (
-            <TouchableOpacity
-              key={req._id}
-              style={styles.requestCard}
-              onPress={() => router.push({ pathname: "/fuelRequest/moreDetail", params: { id: req._id } })}
-            >
-              <View style={{ flex: 1 }}>
-                <Text>🚗 Fuel Type: {req.fuelType}</Text>
-                <Text>📍 Location: {req.location}</Text>
-                <Text>⛽ Amount: {req.amount}</Text>
-              </View>
-              <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text style={{ textAlign: 'center', marginTop: 50 }}>No new requests</Text>
+       {requests.length > 0 ? (
+  requests.map((req) => (
+    <TouchableOpacity
+      key={req._id}
+      style={styles.requestCard}
+      onPress={() => router.push({ pathname: "/fuelRequest/moreDetail", params: { id: req._id } })}
+    >
+      <View style={{ flex: 1 }}>
+        <Text>🆔 Type: {req.type === "service" ? "Service" : "Fuel"}</Text>
+
+        {req.type === "fuel" && (
+          <>
+            <Text>🚗 Fuel Type: {req.fuelType}</Text>
+            <Text>📍 Location: {req.location}</Text>
+            <Text>⛽ Amount: {req.amount}</Text>
+          </>
         )}
+
+        {req.type === "service" && (
+          <>
+            <Text>🔧 Service: {req.serviceType}</Text>
+            <Text>📍 Location: {req.location}</Text>
+            <Text>🕐 Preferred Time: {req.preferredTime}</Text>
+          </>
+        )}
+      </View>
+      <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
+    </TouchableOpacity>
+  ))
+) : (
+  <Text style={{ textAlign: 'center', marginTop: 50 }}>No new requests</Text>
+)}
+
       </View>
     </View>
   );

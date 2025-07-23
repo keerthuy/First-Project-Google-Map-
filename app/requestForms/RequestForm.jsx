@@ -117,7 +117,7 @@ const RequestForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (!email || !serviceType || !situation || !vehicleBrand || !vehicleModel || !image) {
+    if (!email || !serviceType || !situation || !vehicleBrand || !vehicleModel ) {
       Alert.alert('Error', 'Please fill out all fields and attach an image.');
       return;
     }
@@ -126,6 +126,7 @@ const RequestForm = () => {
     formData.append('email', email);
     formData.append('serviceType', serviceType);
     formData.append('situation', situation);
+    formData.append('location', location);
     formData.append('vehicleBrand', vehicleBrand);
     formData.append('vehicleModel', vehicleModel);
       formData.append('vehicle', vehicle);
@@ -215,7 +216,7 @@ formData.append('Garage', JSON.stringify({
             <Picker.Item label="Towing" value="towing" />
             <Picker.Item label="Flat Tire" value="flat_tire" />
             <Picker.Item label="Battery Jumpstart" value="battery_jumpstart" />
-            <Picker.Item label="Fuel Delivery" value="fuel_delivery" />
+            <Picker.Item label="Low Battery charage" value="fuel_delivery" />
           </Picker>
         </View>
 
@@ -247,7 +248,7 @@ formData.append('Garage', JSON.stringify({
         <TextInput style={styles.input} value={vehicleModel} onChangeText={setVehicleModel} />
 
 
-   <Text style={styles.label}>Vehicle Model</Text>
+   <Text style={styles.label}>Vehicle Name</Text>
         <TextInput style={styles.input} value={vehicle} onChangeText={setVehicle} />
 
         <View style={styles.buttonContainer}>
