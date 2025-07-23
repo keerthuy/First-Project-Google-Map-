@@ -14,20 +14,59 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../constant/Colors';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import config from '../../constant/config';
+import * as Location from 'expo-location';
+
 
 const { width, height } = Dimensions.get('window');
 
 const RequestForm = () => {
+
+
+  const { name, latitude, longitude, placeId } = useLocalSearchParams();
   const [email, setEmail] = useState('');
   const [serviceType, setServiceType] = useState('');
   const [situation, setSituation] = useState('');
+  const [location, setLocation] = useState('');
   const [vehicleBrand, setVehicleBrand] = useState('');
   const [vehicleModel, setVehicleModel] = useState('');
+  const[vehicle,setVehicle] = useState('');
   const [image, setImage] = useState(null);
+  
+   useEffect(() => {
+      getCurrentLocation();
+    }, []);
+
+
+  const getCurrentLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Allow location access to auto-fill your address.');
+        return;
+      }
+
+      const locationData = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = locationData.coords;
+
+      const reverseGeocode = await Location.reverseGeocodeAsync({ latitude, longitude });
+
+      if (reverseGeocode.length > 0) {
+        const address = reverseGeocode[0];
+        const formattedAddress = `${address.name || ''}, ${address.city || address.region || ''}`;
+        setLocation(formattedAddress);
+      } else {
+        setLocation(`${latitude}, ${longitude}`);
+      }
+    } catch (error) {
+      console.error('Location error:', error);
+      Alert.alert('Error', 'Failed to get current location.');
+    }
+  };
+
 
   useEffect(() => {
     (async () => {
@@ -89,11 +128,22 @@ const RequestForm = () => {
     formData.append('situation', situation);
     formData.append('vehicleBrand', vehicleBrand);
     formData.append('vehicleModel', vehicleModel);
+      formData.append('vehicle', vehicle);
     formData.append('image', {
       uri: image,
       type: 'image/jpeg',
       name: 'photo.jpg',
     });
+   // ...existing code...
+formData.append('Garage', JSON.stringify({
+  name,
+  latitude,
+  longitude,
+  placeId,
+}));
+ // You need to get this from auth context or API
+
+// ...existing code...
 
     try {
       const response = await axios.post(
@@ -139,7 +189,17 @@ const RequestForm = () => {
           </TouchableOpacity>
           <Text style={styles.top}>Requesting Repair</Text>
         </View>
+        <View>
+          <Text style={{ fontFamily: 'outfit', fontSize: 22, marginBottom: 10 }}>{name}</Text>
+        </View>
 
+                <Text style={styles.label}>Delivery Location</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your location"
+                  value={location}
+                  onChangeText={setLocation}
+                />
         {/* Inputs */}
         <Text style={styles.label}>Type your Email</Text>
         <TextInput style={styles.input} value={email} onChangeText={setEmail} />
@@ -185,6 +245,10 @@ const RequestForm = () => {
 
         <Text style={styles.label}>Vehicle Model</Text>
         <TextInput style={styles.input} value={vehicleModel} onChangeText={setVehicleModel} />
+
+
+   <Text style={styles.label}>Vehicle Model</Text>
+        <TextInput style={styles.input} value={vehicle} onChangeText={setVehicle} />
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
