@@ -11,30 +11,31 @@ const CheckLogin = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const [token, role] = await Promise.all([
-          AsyncStorage.getItem("token"),
-          AsyncStorage.getItem("role"),
-        ]);
+        AsyncStorage.getItem("token"),
+        AsyncStorage.getItem("role"),
+      ]);
 
       if (!token) {
-        router.replace("/");
+        router.replace("/"); // no token → go to login
         return;
       }
 
       try {
         const res = await axios.post(`${config.API_BASE_URL}/verify-token`, { token });
+
         if (res.data.status === "ok") {
-          if (role ==="serviceProvider"){
-            router.replace("/(tabs1)/welcome")
-          }else{
-          router.replace("/(tabs)/welcomeScreen");
+          if (role === "serviceProvider") {
+            router.replace("/(tabs1)/welcome");
+          } else {
+            router.replace("/(tabs)/welcomeScreen");
           }
         } else {
           await AsyncStorage.clear();
-          router.replace("/");
+          router.replace("/auth/login");
         }
       } catch (err) {
         await AsyncStorage.clear();
-        router.replace("/");
+        router.replace("/auth/login");
       }
     };
 

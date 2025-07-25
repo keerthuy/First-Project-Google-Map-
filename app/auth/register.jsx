@@ -128,7 +128,7 @@ const RegisterScreen = () => {
         </Text>
       </TouchableOpacity>
       <Text
-        onPress={() => router.push("/auth1/login")}
+        onPress={() => router.push("/auth/login")}
         style={{
           color:Colors.PRIMARY,
           fontFamily:'outfitBold',

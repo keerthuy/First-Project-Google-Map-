@@ -25,11 +25,6 @@ const WelcomeScreen = () => {
     fetchUsername();
   }, []);
 
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem("token");
-    await AsyncStorage.removeItem("username");
-    router.replace("/auth1/login");
-  };
 
   return (
     <View style={styles.container}>

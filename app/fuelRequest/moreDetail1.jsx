@@ -15,7 +15,7 @@ export default function MoreDetail() {
     const fetchRequestById = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
-        const response = await fetch(`${config.API_BASE_URL}/api/request/service-request/${id}`, {
+        const response = await fetch(`${config.API_BASE_URL}/api/request/fuel-request/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -48,11 +48,23 @@ export default function MoreDetail() {
     fetchRequestById();
   }, [id]);
 
-  // Accept handler for service request
+  // ✅ Accept handler to update request status
   const handleAccept = async () => {
     try {
-      const res = await axios.patch(`${config.API_BASE_URL}/api/request/service-requests/${request._id}/accept`);
-      Alert.alert("Success", "Service request accepted successfully.");
+      // Call backend to update status
+    const res = await axios.patch(`${config.API_BASE_URL}/api/request/fuel-requests/${request._id}/accept`);
+
+
+      // Store locally if needed
+      const existing = await AsyncStorage.getItem('acceptedRequests');
+      let acceptedRequests = existing ? JSON.parse(existing) : [];
+
+      if (!acceptedRequests.includes(request._id)) {
+        acceptedRequests.push(request._id);
+        await AsyncStorage.setItem('acceptedRequests', JSON.stringify(acceptedRequests));
+      }
+
+      Alert.alert("Success", "Request accepted successfully.");
       router.push('/(tabs1)/billMaking');
     } catch (error) {
       console.error("Error accepting request", error);
@@ -60,16 +72,18 @@ export default function MoreDetail() {
     }
   };
 
-  // Decline handler for service request
-  const handleDecline = async () => {
-    try {
-      const res = await axios.patch(`${config.API_BASE_URL}/api/request/service-requests/${request._id}/reject`);
-      Alert.alert("Success", "Service request rejected successfully.");
-    } catch (error) {
-      console.error("Error rejecting request", error);
-      Alert.alert("Error", "Failed to reject request.");
+  const handleDecline = async() => {
+    try{
+      const res = await axios.patch(`${config.API_BASE_URL}/api/request/fuel-requests/${request._id}/reject`);
+      Alert.alert("Success", "Request rejected successfully.");
+
+    }catch(error){
+    console.error("Error accepting request", error);
+      Alert.alert("Error", "Failed to accept request.");
     }
-    router.push('/(tabs1)/welcome');
+    if (handleDecline){
+      router.push('/(tabs1)/welcome');
+    }
   };
 
   if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
@@ -78,18 +92,14 @@ export default function MoreDetail() {
   return (
     <View>
       <View style={styles.card}>
-        <Text style={{ fontSize: 28 }}>Service Request Details :</Text>
-        <Text style={styles.text}>👤 User Name: {request.userId?.name}</Text>
-        <Text style={styles.text}>📞 Phone: {request.userId?.mobile}</Text>
-        <Text style={styles.text}>✉️ Email: {request.userId?.email}</Text>
+        <Text style={{ fontSize: 28 }}>User Details :</Text>
+        <Text style={styles.text}>👤 User Name: {request.user?.name}</Text>
+        <Text style={styles.text}>📞 Phone: {request.user?.mobile}</Text>
+        <Text style={styles.text}>✉️ Email: {request.user?.email}</Text>
+
         <View style={styles.divider} />
+
         <Text style={styles.text}>🆔 Request ID: {request._id.replace(/\D/g, '').slice(-5)}</Text>
-        <Text style={styles.text}>🔧 Service Type: {request.serviceType}</Text>
-        <Text style={styles.text}>📝 Situation: {request.situation}</Text>
-        <Text style={styles.text}>🚗 Vehicle Brand: {request.vehicleBrand}</Text>
-        <Text style={styles.text}>🚙 Vehicle Model: {request.vehicleModel}</Text>
-        <Text style={styles.text}>📍 Location: {request.location}</Text>
-        
       </View>
 
       <View style={styles.buttonGroup}>

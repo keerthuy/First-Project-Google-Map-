@@ -27,7 +27,7 @@ export default function termsCondition() {
             <Text style={styles.declineText}>Decline</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={() => router.push('auth1/registerProvider')}>
+          <TouchableOpacity style={styles.button} onPress={() => router.push('auth/registerProvider')}>
             <Text style={styles.acceptText}>Accept</Text>
           </TouchableOpacity>
         </View>

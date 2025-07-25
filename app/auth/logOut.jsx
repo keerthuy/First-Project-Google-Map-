@@ -1,5 +1,5 @@
 import React from "react";
-import {View,Text,TouchableOpacity,StyleSheet,Dimensions,} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -7,15 +7,24 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function LogoutScreen() {
   const router = useRouter();
+
   const handleLogout = async () => {
-      try {
-        await AsyncStorage.removeItem("token");
-        await AsyncStorage.removeItem("username");
-        router.replace("/"); // Navigate to the index screen
-      } catch (error) {
-        console.error("Error during logout:", error);
-      }
-    };
+    try {
+      // Explicitly remove token and role (adjust keys as per your app)
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("role");
+
+      // Verify removal for debugging
+      const tokenAfter = await AsyncStorage.getItem("token");
+      console.log("Token after logout:", tokenAfter); // should log null
+
+      // Replace stack with login screen
+      router.push("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
   return (
     <View style={styles.overlay}>
       <View style={styles.popupContainer}>
@@ -33,10 +42,7 @@ export default function LogoutScreen() {
           >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={() => handleLogout()}
-          >
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutButtonText}>Yes, Logout</Text>
           </TouchableOpacity>
         </View>
@@ -65,7 +71,6 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 500,
     alignSelf: "center",
-
   },
   title: {
     fontSize: SCREEN_WIDTH > 400 ? 20 : 16,
@@ -74,7 +79,6 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: SCREEN_WIDTH > 400 ? 28 : 16,
     textAlign: "center",
-
   },
   buttonContainer: {
     flexDirection: "row",
@@ -84,7 +88,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     flex: 1,
     marginRight: 10,
-    backgroundColor: "#3498db", // Changed to #3498db
+    backgroundColor: "#3498db",
     paddingVertical: SCREEN_WIDTH > 400 ? 14 : 10,
     borderRadius: 30,
     alignItems: "center",
@@ -98,13 +102,13 @@ const styles = StyleSheet.create({
   logoutButton: {
     flex: 1,
     marginLeft: 10,
-    backgroundColor: "#3498db", // Changed to #3498db
+    backgroundColor: "#3498db",
     paddingVertical: SCREEN_WIDTH > 400 ? 14 : 10,
     borderRadius: 30,
     alignItems: "center",
   },
   logoutButtonText: {
-    color: "#fff", // White text
+    color: "#fff",
     fontSize: SCREEN_WIDTH > 400 ? 17 : 15,
     fontWeight: "800",
     fontFamily: "outfit",

@@ -21,7 +21,7 @@ export default function userSelection() {
 
           <TouchableOpacity
               style={styles.button}
-              onPress={() => router.push("auth1/register")}
+              onPress={() => router.push("auth/register")}
             >
               <Text style={[styles.buttonText, { color: Colors.WHITE }]}>
                  Customer
@@ -30,7 +30,7 @@ export default function userSelection() {
         </TouchableOpacity>
         <TouchableOpacity
               style={styles.button}
-              onPress={() => router.push("auth1/termsCondition")}
+              onPress={() => router.push("auth/termsCondition")}
             >
               <Text style={[styles.buttonText, { color: Colors.WHITE }]}>
                  Service Provider

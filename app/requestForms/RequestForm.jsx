@@ -20,12 +20,9 @@ import * as ImagePicker from 'expo-image-picker';
 import config from '../../constant/config';
 import * as Location from 'expo-location';
 
-
 const { width, height } = Dimensions.get('window');
 
 const RequestForm = () => {
-
-
   const { name, latitude, longitude, placeId } = useLocalSearchParams();
   const [email, setEmail] = useState('');
   const [serviceType, setServiceType] = useState('');
@@ -33,13 +30,12 @@ const RequestForm = () => {
   const [location, setLocation] = useState('');
   const [vehicleBrand, setVehicleBrand] = useState('');
   const [vehicleModel, setVehicleModel] = useState('');
-  const[vehicle,setVehicle] = useState('');
+  const [vehicle, setVehicle] = useState('');
   const [image, setImage] = useState(null);
-  
-   useEffect(() => {
-      getCurrentLocation();
-    }, []);
 
+  useEffect(() => {
+    getCurrentLocation();
+  }, []);
 
   const getCurrentLocation = async () => {
     try {
@@ -48,12 +44,9 @@ const RequestForm = () => {
         Alert.alert('Permission Denied', 'Allow location access to auto-fill your address.');
         return;
       }
-
       const locationData = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = locationData.coords;
-
       const reverseGeocode = await Location.reverseGeocodeAsync({ latitude, longitude });
-
       if (reverseGeocode.length > 0) {
         const address = reverseGeocode[0];
         const formattedAddress = `${address.name || ''}, ${address.city || address.region || ''}`;
@@ -66,7 +59,6 @@ const RequestForm = () => {
       Alert.alert('Error', 'Failed to get current location.');
     }
   };
-
 
   useEffect(() => {
     (async () => {
@@ -88,7 +80,6 @@ const RequestForm = () => {
         aspect: [4, 3],
         quality: 1,
       });
-
       if (!result.canceled) {
         setImage(result.assets[0].uri);
       }
@@ -106,7 +97,6 @@ const RequestForm = () => {
         aspect: [4, 3],
         quality: 1,
       });
-
       if (!result.canceled) {
         setImage(result.assets[0].uri);
       }
@@ -117,11 +107,10 @@ const RequestForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (!email || !serviceType || !situation || !vehicleBrand || !vehicleModel ) {
+    if (!email || !serviceType || !situation || !vehicleBrand || !vehicleModel) {
       Alert.alert('Error', 'Please fill out all fields and attach an image.');
       return;
     }
-
     const formData = new FormData();
     formData.append('email', email);
     formData.append('serviceType', serviceType);
@@ -129,23 +118,18 @@ const RequestForm = () => {
     formData.append('location', location);
     formData.append('vehicleBrand', vehicleBrand);
     formData.append('vehicleModel', vehicleModel);
-      formData.append('vehicle', vehicle);
+    formData.append('vehicle', vehicle);
     formData.append('image', {
       uri: image,
       type: 'image/jpeg',
       name: 'photo.jpg',
     });
-   // ...existing code...
-formData.append('Garage', JSON.stringify({
-  name,
-  latitude,
-  longitude,
-  placeId,
-}));
- // You need to get this from auth context or API
-
-// ...existing code...
-
+    formData.append('Garage', JSON.stringify({
+      name,
+      latitude,
+      longitude,
+      placeId,
+    }));
     try {
       const response = await axios.post(
         `${config.API_BASE_URL}/api/request/service-List`,
@@ -156,14 +140,10 @@ formData.append('Garage', JSON.stringify({
           },
         }
       );
-
-      console.log('Response:', response.data);
-
       if (!response.data || response.data.status !== 'ok') {
         Alert.alert('Error', response.data?.data || 'Submit request failed.');
         return;
       }
-
       Alert.alert('Submit Successful');
       router.push('/(tabs)/welcomeScreen');
     } catch (error) {
@@ -181,81 +161,68 @@ formData.append('Garage', JSON.stringify({
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#f7faff' }}>
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.push('/GoogleMaps/nearbyGarage')}>
-            <Ionicons name="chevron-back" size={30} color="#2260FF" />
+            <Ionicons name="chevron-back" size={30} color={Colors.PRIMARY} />
           </TouchableOpacity>
-          <Text style={styles.top}>Requesting Repair</Text>
-        </View>
-        <View>
-          <Text style={{ fontFamily: 'outfit', fontSize: 22, marginBottom: 10 }}>{name}</Text>
+          <Text style={styles.top}>🛠️ Requesting Repair</Text>
         </View>
 
-                <Text style={styles.label}>Delivery Location</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your location"
-                  value={location}
-                  onChangeText={setLocation}
-                />
-        {/* Inputs */}
-        <Text style={styles.label}>Type your Email</Text>
-        <TextInput style={styles.input} value={email} onChangeText={setEmail} />
+        <Text style={styles.garageName}>{name}</Text>
 
-        <Text style={styles.label}>Type of Service Request</Text>
+        <Text style={styles.label}>📍 Delivery Location</Text>
+        <TextInput style={styles.input} placeholder="Auto-filled location" value={location} onChangeText={setLocation} />
+
+        <Text style={styles.label}>📧 Email</Text>
+        <TextInput style={styles.input} placeholder="Enter your email" value={email} onChangeText={setEmail} />
+
+        <Text style={styles.label}>🔧 Type of Service</Text>
         <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={serviceType}
-            onValueChange={(itemValue) => setServiceType(itemValue)}
-            style={styles.picker}
-          >
+          <Picker selectedValue={serviceType} onValueChange={(val) => setServiceType(val)} style={styles.picker}>
             <Picker.Item label="Select Service Type" value="" />
             <Picker.Item label="Towing" value="towing" />
             <Picker.Item label="Flat Tire" value="flat_tire" />
             <Picker.Item label="Battery Jumpstart" value="battery_jumpstart" />
-            <Picker.Item label="Low Battery charage" value="fuel_delivery" />
+            <Picker.Item label="Low Battery Charge" value="fuel_delivery" />
           </Picker>
         </View>
 
-        <Text style={styles.label}>Please briefly explain the situation</Text>
+        <Text style={styles.label}>📝 Describe Situation</Text>
         <TextInput
           style={[styles.input, { height: height * 0.15 }]}
+          placeholder="Explain the issue briefly"
           value={situation}
           onChangeText={setSituation}
           multiline
         />
 
-        <Text style={styles.label}>Attach a Picture</Text>
+        <Text style={styles.label}>📷 Attach a Picture</Text>
         <View style={styles.photoOptions}>
           <TouchableOpacity style={styles.photoButton} onPress={handleCamera}>
             <Ionicons name="camera" size={24} color="#007BFF" />
-            <Text style={styles.photoButtonText}>Take a Photo</Text>
+            <Text style={styles.photoButtonText}>Camera</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.photoButton} onPress={handleImagePicker}>
             <Ionicons name="image" size={24} color="#007BFF" />
-            <Text style={styles.photoButtonText}>Add from Photos</Text>
+            <Text style={styles.photoButtonText}>Gallery</Text>
           </TouchableOpacity>
         </View>
         {image && <Image source={{ uri: image }} style={styles.previewImage} />}
 
-        <Text style={styles.label}>Vehicle Brand</Text>
-        <TextInput style={styles.input} value={vehicleBrand} onChangeText={setVehicleBrand} />
+        <Text style={styles.label}>🚗 Vehicle Brand</Text>
+        <TextInput style={styles.input} placeholder="Toyota, Nissan, etc." value={vehicleBrand} onChangeText={setVehicleBrand} />
 
-        <Text style={styles.label}>Vehicle Model</Text>
-        <TextInput style={styles.input} value={vehicleModel} onChangeText={setVehicleModel} />
+        <Text style={styles.label}>🚘 Vehicle Model</Text>
+        <TextInput style={styles.input} placeholder="e.g., Corolla, Leaf" value={vehicleModel} onChangeText={setVehicleModel} />
 
+        <Text style={styles.label}>Vehicle Name</Text>
+        <TextInput style={styles.input} placeholder="Custom name or ID" value={vehicle} onChangeText={setVehicle} />
 
-   <Text style={styles.label}>Vehicle Name</Text>
-        <TextInput style={styles.input} value={vehicle} onChangeText={setVehicle} />
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Submit</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Submit Request</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -265,36 +232,46 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: width * 0.05,
-    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: height * 0.02,
-    marginTop:height * 0.01,
+    marginTop: height * 0.01,
   },
   top: {
-    fontSize: width * 0.08,
+    fontSize: width * 0.07,
     fontFamily: 'outfitBold',
     color: Colors.PRIMARY,
-    marginLeft: width * 0.02,
+    marginLeft: width * 0.03,
+  },
+  garageName: {
+    fontSize: 20,
+    fontFamily: 'outfit',
+    color: Colors.PRIMARY,
+    marginBottom: height * 0.02,
   },
   label: {
     fontSize: width * 0.045,
     marginBottom: height * 0.01,
+    fontFamily: 'outfit',
+    color: '#444',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
     padding: width * 0.03,
     marginBottom: height * 0.02,
+    backgroundColor: '#fff',
+    fontFamily: 'outfit',
   },
   pickerContainer: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
     marginBottom: height * 0.02,
+    backgroundColor: '#fff',
   },
   picker: {
     height: 50,
@@ -311,34 +288,35 @@ const styles = StyleSheet.create({
     padding: width * 0.03,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
     flex: 1,
     marginHorizontal: width * 0.01,
+    backgroundColor: '#f9f9f9',
   },
   photoButtonText: {
     marginLeft: width * 0.02,
     color: '#007BFF',
     fontSize: width * 0.04,
+    fontFamily: 'outfit',
   },
   previewImage: {
     width: '100%',
     height: 200,
-    borderRadius: 5,
+    borderRadius: 8,
     marginBottom: height * 0.02,
   },
-  buttonContainer: {
-    marginTop: height * 0.03,
-  },
   submitButton: {
-    backgroundColor: '#4CAF50',
-    padding: height * 0.02,
-    borderRadius: 5,
+    backgroundColor: Colors.PRIMARY,
+    paddingVertical: 15,
+    borderRadius: 10,
     alignItems: 'center',
+    marginTop: height * 0.03,
+    marginBottom: height * 0.02,
   },
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
     fontSize: width * 0.045,
+    fontFamily: 'outfitBold',
   },
 });
 

@@ -152,7 +152,7 @@ if (data.placeId && typeof data.placeId === "string") {
           <TouchableOpacity style={styles.button} onPress={handleRegister}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
-          <Text style={styles.loginText} onPress={() => router.push("/auth1/login")}>
+          <Text style={styles.loginText} onPress={() => router.push("/auth/login")}>
             Already have an account? Login
           </Text>
         </View>

@@ -10,10 +10,8 @@ export default function HomeScreen() {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        // Only redirect if token exists
         const token = await AsyncStorage.getItem("token");
         const role = await AsyncStorage.getItem("role");
-
         if (token) {
           if (role === "serviceProvider") {
             router.replace("/(tabs1)/welcome");
@@ -21,13 +19,11 @@ export default function HomeScreen() {
             router.replace("/(tabs)/welcomeScreen");
           }
         }
-        // If no token, stay on the index screen
+        // If no token, stay on landing
       } catch (error) {
         console.error("Error checking login status:", error);
-        // If an error occurs, stay on the index screen
       }
     };
-
     checkLoginStatus();
   }, []);
 
@@ -74,7 +70,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push("/auth1/userSelection")}
+          onPress={() => router.push("/auth/userSelection")}
         >
           <Text style={[styles.buttonText, { color: Colors.PRIMARY }]}>
             Get Started
@@ -89,7 +85,7 @@ export default function HomeScreen() {
               borderColor: Colors.WHITE,
             },
           ]}
-          onPress={() => router.push("/auth1/login")}
+          onPress={() => router.push("/auth/login")}
         >
           <Text style={[styles.buttonText, { color: Colors.WHITE }]}>
             Already have an account?

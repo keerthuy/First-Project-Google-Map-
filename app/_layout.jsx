@@ -1,17 +1,20 @@
-import React from "react";
-import { Stack } from "expo-router"; // Use the Expo Router Stack component
+import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { View, ActivityIndicator } from "react-native";
+
 export default function RootLayout() {
-useFonts({
-  'outfit':require('./../assets/fonts/Outfit-Regular.ttf'),
-  'outfitBold':require('./../assets/fonts/Outfit-Bold.ttf')
-})
+  const [fontsLoaded] = useFonts({
+    'outfit': require('../assets/fonts/Outfit-Regular.ttf'),
+    'outfitBold': require('../assets/fonts/Outfit-Bold.ttf'),
+  });
 
-  return (
-  <Stack screenOptions={{headerShown:false}}>
-    {/* <Stack.Screen name="(tabs)/welcomeScreen" />
-    <Stack.Screen name="nearbyGas" options={{ presentation: "modal" }} /> */}
-  </Stack>
-  )
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

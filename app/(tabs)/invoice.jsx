@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import config from '../../constant/config';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Invoice() {
   const [bills, setBills] = useState([]);
@@ -13,7 +14,14 @@ export default function Invoice() {
   useEffect(() => {
     const getBills = async () => {
       try {
-        const res = await axios.get(`${config.API_BASE_URL}/api/UserFuelBill/bills`);
+        const userId = await AsyncStorage.getItem("userId");
+
+        if (!userId) {
+          console.warn("No userId found in AsyncStorage");
+          return;
+        }
+
+        const res = await axios.get(`${config.API_BASE_URL}/api/UserFuelBill/bills/${userId}`);
         setBills(res.data.data);
       } catch (err) {
         console.error("Error fetching bills", err);
@@ -42,7 +50,9 @@ export default function Invoice() {
       ) : (
         bills.map((bill, index) => (
           <View key={index} style={styles.card}>
-            <Text style={styles.garage}>🏪 Garage: {bill.user?.name || 'Unknown'}</Text>
+            <Text style={styles.label}>⛽ Fuel Type: {bill.request?.fuelType || 'N/A'}</Text>
+            <Text style={styles.label}>📍 Fuel Station: {bill.request?.gasStation?.name || 'N/A'}</Text>
+            <Text style={styles.label}>👤 User: {bill.user?.name || 'Unknown'}</Text>
             <Text style={styles.amount}>💰 Total: Rs. {bill.total}</Text>
           </View>
         ))
@@ -82,8 +92,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 15,
   },
-  garage: {
-    fontSize: 18,
+  label: {
+    fontSize: 16,
     fontFamily: 'outfit',
     marginBottom: 5,
   },
@@ -91,5 +101,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     fontFamily: 'outfit',
+    marginTop: 5,
   },
 });

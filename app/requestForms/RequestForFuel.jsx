@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions, ScrollView, SafeAreaView } from 'react-native';
 import Colors from '../../constant/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import * as Location from 'expo-location';
 import config from '../../constant/config';
-config
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const { width, height } = Dimensions.get('window');
 
 const RequestFuelScreen = () => {
@@ -19,6 +20,7 @@ const RequestFuelScreen = () => {
 
   useEffect(() => {
     getCurrentLocation();
+    getEmailFromStorage();
   }, []);
 
   const getCurrentLocation = async () => {
@@ -31,7 +33,6 @@ const RequestFuelScreen = () => {
 
       const locationData = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = locationData.coords;
-
       const reverseGeocode = await Location.reverseGeocodeAsync({ latitude, longitude });
 
       if (reverseGeocode.length > 0) {
@@ -45,6 +46,11 @@ const RequestFuelScreen = () => {
       console.error('Location error:', error);
       Alert.alert('Error', 'Failed to get current location.');
     }
+  };
+
+  const getEmailFromStorage = async () => {
+    const userEmail = await AsyncStorage.getItem('userEmail');
+    if (userEmail) setEmail(userEmail);
   };
 
   const handleSubmit = async () => {
@@ -73,165 +79,181 @@ const RequestFuelScreen = () => {
         },
       });
 
-      console.log("Submit response:", response.data);
-
       if (!response.data || response.data.status !== "ok") {
         Alert.alert("Error", response.data?.data || "Submit request failed.");
         return;
       }
 
-      Alert.alert("Request submitted successfully");
+      Alert.alert("Success", "Fuel request submitted successfully.");
       router.push("/(tabs)/welcomeScreen");
     } catch (error) {
       if (error.response) {
         console.error("Server error:", error.response.data);
         Alert.alert("Error", error.response.data.message || "Submission failed.");
-      } else if (error.request) {
-        console.error("Network error:", error.request);
-        Alert.alert("Error", "Check your internet connection.");
       } else {
-        console.error("Error:", error.message);
         Alert.alert("Error", "Something went wrong.");
       }
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push('/GoogleMaps/nearbyGas')}>
-            <Ionicons name="chevron-back" size={width * 0.08} color="#2260FF" />
-          </TouchableOpacity>
-          <Text style={styles.top}>Requesting Fuel</Text>
-        </View>
-
-        {/* Gas Station Name */}
-        <View>
-          <Text style={{ fontFamily: 'outfit', fontSize: 22, marginBottom: 10 }}>{name}</Text>
-        </View>
-
-        {/* Location Field */}
-        <Text style={styles.label}>Delivery Location</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your location"
-          value={location}
-          onChangeText={setLocation}
-        />
-
-        {/* Email */}
-        <Text style={styles.label}>Enter the Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-        />
-
-        {/* Fuel Type */}
-        <Text style={styles.label}>Fuel Type</Text>
-        <View style={styles.radioGroup}>
-          <TouchableOpacity
-            style={styles.radioButton}
-            onPress={() => setFuelType('Petrol')}
-          >
-            <View style={[styles.radioCircle, fuelType === 'Petrol' && styles.radioSelected]} />
-            <Text style={styles.radioText}>Petrol</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.radioButton}
-            onPress={() => setFuelType('Diesel')}
-          >
-            <View style={[styles.radioCircle, fuelType === 'Diesel' && styles.radioSelected]} />
-            <Text style={styles.radioText}>Diesel</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Amount */}
-        <Text style={styles.label}>Full Amount</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter the amount"
-          keyboardType="numeric"
-          value={amount}
-          onChangeText={setAmount}
-        />
-
-        {/* Submit Button */}
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Submit Request</Text>
+    <SafeAreaView style={styles.container}>
+      {/* Fixed Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={width * 0.08} color={Colors.PRIMARY} />
         </TouchableOpacity>
+        <Text style={styles.top}>Fuel Request</Text>
+        <View style={{ width: 30 }} />
       </View>
-    </ScrollView>
+
+      {/* Scrollable Content */}
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.gasName}>{name}</Text>
+
+        <View style={styles.card}>
+          <Text style={styles.label}>Delivery Location</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your location"
+            value={location}
+            onChangeText={setLocation}
+          />
+
+          <Text style={styles.label}>Email Address</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
+
+          <Text style={styles.label}>⛽Select Fuel Type</Text>
+          <View style={styles.fuelTypeRow}>
+            {['Petrol', 'Diesel'].map(type => (
+              <TouchableOpacity
+                key={type}
+                style={[styles.fuelButton, fuelType === type && styles.selectedFuel]}
+                onPress={() => setFuelType(type)}
+              >
+                <Text style={[styles.fuelButtonText, fuelType === type && styles.selectedFuelText]}>
+                  {type}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={styles.label}>💧 Amount (Litres)</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter amount in litres"
+            keyboardType="numeric"
+            value={amount}
+            onChangeText={setAmount}
+          />
+
+          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+            <Text style={styles.submitButtonText}>Submit Request</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: width * 0.05,
-    backgroundColor: '#fff',
+    backgroundColor: '#f2f7ff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: height * 0.02,
-    marginTop: height * 0.01,
+    paddingHorizontal: width * 0.05,
+    paddingTop: height * 0.045,
+    paddingBottom: height * 0.01,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+    justifyContent: 'space-between',
+  },
+  scrollContent: {
+    padding: width * 0.05,
+    paddingBottom: 50,
   },
   top: {
-    fontSize: width * 0.08,
+    fontSize: 26,
     fontFamily: 'outfitBold',
     color: Colors.PRIMARY,
-    marginLeft: width * 0.02,
+  },
+  gasName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: Colors.PRIMARY,
+    marginBottom: 10,
+    fontFamily: 'outfit',
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 4,
   },
   label: {
-    fontSize: width * 0.045,
-    marginVertical: height * 0.01,
+    fontSize: 16,
+    marginBottom: 6,
+    fontFamily: 'outfit',
+    color: '#333',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
-    padding: width * 0.03,
-    marginBottom: height * 0.02,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+    fontFamily: 'outfit',
+    backgroundColor: '#fefefe',
   },
-  radioGroup: {
+  fuelTypeRow: {
     flexDirection: 'row',
-    marginBottom: height * 0.02,
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
-  radioButton: {
-    flexDirection: 'row',
+  fuelButton: {
+    flex: 1,
+    marginRight: 10,
+    paddingVertical: 10,
+    backgroundColor: '#eee',
+    borderRadius: 8,
     alignItems: 'center',
-    marginRight: width * 0.05,
   },
-  radioCircle: {
-    width: width * 0.05,
-    height: width * 0.05,
-    borderRadius: (width * 0.05) / 2,
-    borderWidth: 1,
-    borderColor: '#007BFF',
-    marginRight: width * 0.02,
+  selectedFuel: {
+    backgroundColor: Colors.PRIMARY,
   },
-  radioSelected: {
-    backgroundColor: '#007BFF',
+  fuelButtonText: {
+    fontSize: 16,
+    color: '#333',
+    fontFamily: 'outfit',
   },
-  radioText: {
-    fontSize: width * 0.045,
+  selectedFuelText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   submitButton: {
-    backgroundColor: '#007BFF',
-    padding: height * 0.02,
-    borderRadius: 5,
+    backgroundColor: Colors.PRIMARY,
+    paddingVertical: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    marginTop: height * 0.03,
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: width * 0.045,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'outfitBold',
   },
 });
 

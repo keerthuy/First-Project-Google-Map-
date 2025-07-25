@@ -71,7 +71,7 @@ const profileSer = () => {
 
       <TouchableOpacity
         style={styles.logoutRow}
-        onPress={() => router.push("/profS/logOut")}
+        onPress={() => router.push("/auth/logOut")}
       >
         <Text style={styles.logoutLabel}>🚪 Log Out</Text>
         <Text style={styles.chevron}>{">"}</Text>
